@@ -8,6 +8,7 @@ import torch.backends.cudnn as cudnn
 from numpy import random
 import easyocr
 import os
+import requests
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
@@ -158,12 +159,12 @@ def detect(save_img=False):
                         x1, y1, x2, y2 = map(int, xyxy)
                         roi = im0[y1:y2, x1:x2]
                         
-                        thresh = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+                        gray_roi = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
                         # blurred = cv2.GaussianBlur(gray_roi, (5, 5), 0)
 
                         # Apply adaptive thresholding to create a binary image
-                        # thresh = cv2.adaptiveThreshold(gray_roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 4)
-                        
+                        thresh = cv2.adaptiveThreshold(gray_roi, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV, 11, 4)
+                        # _,thresh = cv2.threshold(gray_roi, 150, 255, cv2.THRESH_BINARY_INV)
                         ocr_result = reader.readtext(thresh)
                         for (bbox, text, prob) in ocr_result:
                             text=text.replace(" ","")
@@ -195,6 +196,20 @@ def detect(save_img=False):
                                         license_plate_ += text[j]
 
                             if inFormat(license_plate_) and prob >0.7:
+                                url = 'http://localhost:5000/vehicle_entry'
+
+                                # License plate number for the entry
+
+                                # Send a POST request to the Flask application
+                                response = requests.post(url, params={'license_plate': license_plate_})
+
+                                # Check the response
+                                if response.status_code == 201:
+                                    print("Vehicle entry recorded successfully")
+                                elif response.status_code == 200:
+                                    print("Entry already exists for license plate:", license_plate_)
+                                else:
+                                    print("Error:", response.json()['error'])
                                 # print("final pass")
                                 print(f"OCR Text: {license_plate_} (Confidence: {prob:.2f})")
                             # print(f"OCR Text: {text} (Confidence: {prob:.2f})")
