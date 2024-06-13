@@ -96,7 +96,7 @@ The following do not work unless opencv is installed differently (built from sou
 
 Any module not found errors, just `pip3 install` the module.
 
-The only advice that I can give you if you run into any errors after this is , do not trust chatgpt and google the problem. If the problem becomes too complex then its time to flash (resinstall the OS) the storage device.
+The only advice that I can give you if you run into any errors after this is , do not trust chatgpt and instead just google the problem. If the problem becomes too complex then its time to flash (resinstall the OS) the storage device.
 
 
 ## References
